@@ -1,0 +1,30 @@
+<?php
+
+
+namespace App\Http\Controllers;
+
+use App\Models\Candidature;
+use App\Notifications\CandidatureReçue;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
+
+class JobController extends Controller
+{
+    public function postuler(Request $request)
+    {
+        // Validation des données
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            // Ajoutez d'autres validations pour les champs supplémentaires
+        ]);
+
+        // Création de la candidature
+        $candidature = Candidature::create($request->all());
+
+        // Notification à l'utilisateur
+        $user = auth()->user();
+        $user->notify(new CandidatureReçue($candidature));
+
+        return redirect()->back()->with('success', 'Votre candidature a été soumise avec succès!');
+    }
+}
